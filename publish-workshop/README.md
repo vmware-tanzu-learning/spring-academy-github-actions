@@ -47,7 +47,7 @@ on:
       - "workshops/**"
       - "resources/**"
     tags:
-      - "[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+**"
 
 jobs:
   publish-workshop:
