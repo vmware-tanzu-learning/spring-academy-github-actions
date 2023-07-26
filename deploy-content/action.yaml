@@ -1,0 +1,31 @@
+name: Penguin Deployer
+description: Deploy Penguin Content and Metadata to target environment
+
+inputs:
+  penguin-api-url:
+    description: "Penguin API URL."
+    required: true
+  penguin-api-token:
+    description: "Penguin API Token."
+    required: true
+  path:
+    description: "Relative directory path under $GITHUB_WORKSPACE to content files."
+    required: false
+    default: '.'
+
+runs:
+  using: composite
+
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Deploy Penguin Content
+      shell: bash
+      env:
+        PENGUINCTL_APIURL: ${{inputs.penguin-api-url}}
+        PENGUINCTL_APITOKEN: ${{inputs.penguin-api-token}}
+      run: |
+        ${{github.action_path}}/scripts/apply-content.sh \
+          '${{inputs.path}}'
