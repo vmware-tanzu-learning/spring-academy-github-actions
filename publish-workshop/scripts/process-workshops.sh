@@ -51,13 +51,24 @@ function process_workshop_file() {
         --data-value workshop.file="$(basename $WORKSHOP_FILENAME)"
 }
 
+function process_workshop_file_with_sed() {
+    local WORKSHOP_FILENAME=$1
+    local TAG=$2
+    local REGISTRY=$3
+
+    cat $WORKSHOP_FILENAME | \
+        sed "s|\$(image_repository)|${REGISTRY}|g" | \
+        sed "s|:latest|:${TAG}|g" > $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
+}
+
 if [ -d $REPOSITORY_PATH/workshops ]; then
     for file in $REPOSITORY_PATH/workshops/*/$WORKSHOP_FILENAME; do
         workshop=$(basename $(dirname $(dirname $file)))
 
         mkdir -p $OUTPUT_DIRECTORY/workshops/$workshop/resources
 
-        process_workshop_file $file > $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
+        # process_workshop_file $file > $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
+        process_workshop_file_with_sed $file $REPOSITORY_TAG "ghcr.io/${REPOSITORY_OWNER}" > $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
     done
 
     WORKSHOP_DEFINITIONS=workshops.yaml
@@ -66,7 +77,8 @@ else
 
     mkdir -p $OUTPUT_DIRECTORY/workshops/$workshop/resources
 
-    process_workshop_file $REPOSITORY_PATH/$WORKSHOP_FILENAME > $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
+    # process_workshop_file $REPOSITORY_PATH/$WORKSHOP_FILENAME > $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
+    process_workshop_file $REPOSITORY_PATH/$WORKSHOP_FILENAME $REPOSITORY_TAG "ghcr.io/${REPOSITORY_OWNER}" > $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
 
     WORKSHOP_DEFINITIONS=workshop.yaml
 fi
