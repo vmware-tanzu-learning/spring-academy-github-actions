@@ -8,4 +8,3 @@ The GitHub actions included here are:
 
 -   [Publish Workshop](publish-workshop/README.md) - Publish workshop artifacts
     to github container registry.
--   [Deploy Content](deploy-content/README.md) - Deploy content to penguin server
