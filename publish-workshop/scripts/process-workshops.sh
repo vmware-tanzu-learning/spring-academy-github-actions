@@ -56,9 +56,24 @@ function process_workshop_file_with_sed() {
     local TAG=$2
     local REGISTRY=$3
 
-    cat $WORKSHOP_FILENAME | \
-        sed "s|\$(image_repository)|${REGISTRY}|g" | \
-        sed "s|:latest|:${TAG}|g" > $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
+    semver_expr="^v[0-9]+.[0-9]+.[0-9]+$"
+
+    if [[ $TAG =~ $semver_expr ]]; then
+        CODEBASE_BRANCH="prod"
+    else
+        CODEBASE_BRANCH="main"
+    fi
+
+    if [ "$CODEBASE_BRANCH" = "main" ]; then
+        cat $WORKSHOP_FILENAME | \
+            sed "s|\$(image_repository)|${REGISTRY}|g" | \
+            sed "s|:latest|:${TAG}|g" > $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
+    else
+        cat $WORKSHOP_FILENAME | \
+            sed "s|\$(image_repository)|${REGISTRY}|g" | \
+            sed "s|:latest|:${TAG}|g" | \
+            sed "s|ref: main|ref: ${CODEBASE_BRANCH}|g"> $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
+    fi
 }
 
 if [ -d $REPOSITORY_PATH/workshops ]; then
@@ -67,7 +82,6 @@ if [ -d $REPOSITORY_PATH/workshops ]; then
 
         mkdir -p $OUTPUT_DIRECTORY/workshops/$workshop/resources
 
-        # process_workshop_file $file > $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
         process_workshop_file_with_sed $file $REPOSITORY_TAG "ghcr.io/${REPOSITORY_OWNER}" > $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
     done
 
@@ -77,8 +91,7 @@ else
 
     mkdir -p $OUTPUT_DIRECTORY/workshops/$workshop/resources
 
-    # process_workshop_file $REPOSITORY_PATH/$WORKSHOP_FILENAME > $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
-    process_workshop_file $REPOSITORY_PATH/$WORKSHOP_FILENAME $REPOSITORY_TAG "ghcr.io/${REPOSITORY_OWNER}" > $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
+    process_workshop_file_with_sed $REPOSITORY_PATH/$WORKSHOP_FILENAME $REPOSITORY_TAG "ghcr.io/${REPOSITORY_OWNER}" > $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
 
     WORKSHOP_DEFINITIONS=workshop.yaml
 fi
