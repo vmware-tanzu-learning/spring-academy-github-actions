@@ -67,11 +67,11 @@ function process_workshop_file_with_sed() {
     if [ "$CODEBASE_BRANCH" = "main" ]; then
         cat $WORKSHOP_FILENAME | \
             sed "s|\$(image_repository)|${REGISTRY}|g" | \
-            sed "s|:latest|:${TAG}|g" > $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
+            sed "s|\$(workshop_version)|${TAG}|g" > $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
     else
         cat $WORKSHOP_FILENAME | \
             sed "s|\$(image_repository)|${REGISTRY}|g" | \
-            sed "s|:latest|:${TAG}|g" | \
+            sed "s|\$(workshop_version)|${TAG}|g" | \
             sed "s|ref: main|ref: ${CODEBASE_BRANCH}|g"> $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
     fi
 }
