@@ -56,24 +56,9 @@ function process_workshop_file_with_sed() {
     local TAG=$2
     local REGISTRY=$3
 
-    semver_expr="^v[0-9]+.[0-9]+.[0-9]+$"
-
-    if [[ $TAG =~ $semver_expr ]]; then
-        CODEBASE_BRANCH="prod"
-    else
-        CODEBASE_BRANCH="main"
-    fi
-
-    if [ "$CODEBASE_BRANCH" = "main" ]; then
-        cat $WORKSHOP_FILENAME | \
-            sed "s|\$(image_repository)|${REGISTRY}|g" | \
-            sed "s|\$(workshop_version)|${TAG}|g" > $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
-    else
-        cat $WORKSHOP_FILENAME | \
-            sed "s|\$(image_repository)|${REGISTRY}|g" | \
-            sed "s|\$(workshop_version)|${TAG}|g" | \
-            sed "s|ref: main|ref: ${CODEBASE_BRANCH}|g"> $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
-    fi
+    cat $WORKSHOP_FILENAME | \
+        sed "s|\$(image_repository)|${REGISTRY}|g" | \
+        sed "s|\$(workshop_version)|${TAG}|g" > $OUTPUT_DIRECTORY/workshops/$workshop/resources/workshop.yaml
 }
 
 if [ -d $REPOSITORY_PATH/workshops ]; then
